@@ -1,28 +1,72 @@
 // Selectors
 const newTodoInput = document.getElementById('newTodoInput');
 const todoList = document.getElementById('todoList');
+const filterSelectors = document.querySelectorAll('.filterOption');
+const clearCompleted = document.getElementById('clearCompleted');
 
-let todos = [];
+class State {
+	constructor() {
+		this.currentState = 'all';
+		this.stateOptions = ['all', 'active', 'completed'];
+	}
 
-function createTodo(todosArr, input) {
+	setState(value) {
+		reloadTodos(filterTodos(value));
+		this.currentState = value;
+		this.stateOptions.forEach((option) =>
+			document
+				.querySelector(`[data-filter="${option}"]`)
+				.classList.remove('filterSelected'),
+		);
+		document
+			.querySelector(`[data-filter="${value}"]`)
+			.classList.add('filterSelected');
+	}
+}
+
+const state = new State();
+
+window.addEventListener('DOMContentLoaded', state.setState('all'));
+
+newTodoInput.addEventListener('keydown', (e) => {
+	if (e.key === 'Enter') {
+		createTodo(e.target);
+		e.target.value = '';
+	}
+});
+
+filterSelectors.forEach((selector) => {
+	selector.addEventListener('click', (e) =>
+		state.setState(e.target.dataset.filter),
+	);
+});
+
+clearCompleted.addEventListener('click', (e) => {
+	const completedTodos = filterTodos('completed');
+	completedTodos.forEach((todo) => deleteTodo(todo));
+	state.setState(state.currentState);
+});
+
+function createTodo(input) {
+	function generateId(arr) {
+		const allId = arr.map((i) => i.id);
+		let newId;
+		do {
+			newId = Math.floor(Math.random() * 256);
+		} while (allId.includes(newId));
+
+		return newId;
+	}
+
 	const newTodo = {
-		id: generateId(todosArr),
+		id: generateId(loadTodos()),
 		isDone: false,
 		content: input.value,
 	};
 
-	todosArr.push(newTodo);
-	saveTodos(newTodo);
+	saveTodo(newTodo);
 	state.setState(state.currentState);
-	showRemainingCounter(todosArr);
-}
-
-function getTodo(input) {
-	const id = Number(input.dataset.todoId);
-	const isDone = input.querySelector('.checkbox').checked;
-	const content = input.querySelector('.newTodoInput').value;
-
-	return { id, isDone, content };
+	showRemainingCounter(loadTodos());
 }
 
 function reloadTodos(todosArr) {
@@ -30,30 +74,21 @@ function reloadTodos(todosArr) {
 	todosArr.forEach((todo) => buildTodoComponent(todo));
 }
 
-function generateId(arr) {
-	const allId = arr.map((i) => i.id);
-	let newId;
-	do {
-		newId = Math.floor(Math.random() * 256);
-	} while (allId.includes(newId));
+function deleteTodo(item) {
+	const todos = loadTodos();
+	const newTodos = todos.filter((x) => x.id !== item.id);
+	localStorage.setItem('TodosData', JSON.stringify(newTodos));
 
-	return newId;
+	showRemainingCounter(newTodos);
 }
 
-function deleteTodo(item, todosArr) {
-	todos = todosArr.filter((x) => x.id !== item.id);
-	showRemainingCounter(todos);
-}
+function changeTodo(item) {
+	const todos = loadTodos();
+	const newTodos = todos.map((todo) => (todo.id === item.id ? item : todo));
+	localStorage.setItem('TodosData', JSON.stringify(newTodos));
 
-// function deleteCompletedTodos(todosArr) {
-//     const newTodos = filterTodos(todosArr, 'active');
-//     console.log(newTodos)
-// }
-
-function changeTodo(item, todosArr) {
-	todos = todosArr.map((todo) => (todo.id === item.id ? item : todo));
 	state.setState(state.currentState);
-	showRemainingCounter(todos);
+	showRemainingCounter(newTodos);
 }
 
 function showRemainingCounter(todosArr) {
@@ -62,19 +97,20 @@ function showRemainingCounter(todosArr) {
 	counter.innerText = `${uncompletedTodos.length} items left`;
 }
 
-function filterTodos(todosArr, filter) {
+function filterTodos(filter) {
+	const todos = loadTodos();
 	let filteredTodos;
 	switch (filter) {
 		case 'all':
-			filteredTodos = todosArr;
+			filteredTodos = todos;
 			break;
 
 		case 'active':
-			filteredTodos = todosArr.filter((todo) => todo.isDone === false);
+			filteredTodos = todos.filter((todo) => todo.isDone === false);
 			break;
 
 		case 'completed':
-			filteredTodos = todosArr.filter((todo) => todo.isDone === true);
+			filteredTodos = todos.filter((todo) => todo.isDone === true);
 			break;
 	}
 
@@ -93,8 +129,16 @@ function buildTodoComponent(props) {
 	checkbox.defaultChecked = isDone;
 	checkbox.classList.add('checkbox');
 
+	function getTodo(input) {
+		const id = Number(input.dataset.todoId);
+		const isDone = input.querySelector('.checkbox').checked;
+		const content = input.querySelector('.newTodoInput').value;
+
+		return { id, isDone, content };
+	}
+
 	checkbox.addEventListener('click', (e) =>
-		changeTodo(getTodo(e.target.parentNode), todos),
+		changeTodo(getTodo(e.target.parentNode)),
 	);
 
 	const text = document.createElement('input');
@@ -104,7 +148,7 @@ function buildTodoComponent(props) {
 
 	text.addEventListener('keydown', (e) => {
 		if (e.key === 'Enter') {
-			changeTodo(getTodo(e.target.parentNode), todos);
+			changeTodo(getTodo(e.target.parentNode));
 		}
 	});
 
@@ -112,8 +156,8 @@ function buildTodoComponent(props) {
 	deleteBtn.classList.add('deleteBtn');
 
 	deleteBtn.addEventListener('click', (e) => {
-		const i = getTodo(e.target.parentNode);
-		deleteTodo(i, todos);
+		const todo = getTodo(e.target.parentNode);
+		deleteTodo(todo);
 		state.setState(state.currentState);
 	});
 
@@ -124,59 +168,9 @@ function buildTodoComponent(props) {
 	todoList.appendChild(todo);
 }
 
-newTodoInput.addEventListener('keydown', (e) => {
-	if (e.key === 'Enter') {
-		createTodo(todos, e.target);
-		e.target.value = '';
-	}
-});
-
-const filterSelectors = document.querySelectorAll('.filterOption');
-console.log(filterSelectors);
-
-filterSelectors.forEach((selector) => {
-	selector.addEventListener('click', (e) =>
-		state.setState(e.target.dataset.filter),
-	);
-});
-
-const clearCompleted = document.getElementById('clearCompleted');
-clearCompleted.addEventListener('click', (e) => {
-	todos = filterTodos(todos, 'active');
-	reloadTodos(todos);
-	state.setState(state.currentState);
-});
-
-class State {
-	constructor() {
-		this.currentState = 'all';
-		this.stateOptions = ['all', 'active', 'completed'];
-	}
-
-	setState(value) {
-		reloadTodos(filterTodos(todos, value));
-		this.currentState = value;
-		this.stateOptions.forEach((option) =>
-			document
-				.querySelector(`[data-filter="${option}"]`)
-				.classList.remove('filterSelected'),
-		);
-		document
-			.querySelector(`[data-filter="${value}"]`)
-			.classList.add('filterSelected');
-	}
-}
-
-const state = new State();
-
-function saveTodos(newTodos) {
-	let todos;
-	if (localStorage.getItem('TodosData') === null) {
-		todos = [];
-	} else {
-		todos = JSON.parse(localStorage.getItem('TodosData'));
-	}
-	todos.push(newTodos);
+function saveTodo(newTodo) {
+	let todos = loadTodos();
+	todos.push(newTodo);
 	localStorage.setItem('TodosData', JSON.stringify(todos));
 }
 
