@@ -2,6 +2,7 @@
 const newTodoInput = document.getElementById('newTodoInput');
 const todoList = document.getElementById('todoList')
 
+
 let todos = [];
 
 function createTodo(todosArr, input) {
@@ -12,7 +13,8 @@ function createTodo(todosArr, input) {
     }
 
     todosArr.push(newTodo)
-    setState('all')
+    // state.setState('all')
+    state.setState(state.state)
     showRemainingCounter(todosArr)
 
 }
@@ -117,7 +119,7 @@ function buildTodoComponent(props) {
         const i = (getTodo(e.target.parentNode));
         console.log(i, todos)
         deleteTodo(i, todos)
-        reloadTodos(todos)
+        state.setState(state.state)
     })
 
     todo.appendChild(checkbox);
@@ -134,34 +136,13 @@ newTodoInput.addEventListener('keydown', e => {
     }
 })
 
-const filterSelectors = document.querySelectorAll('#filterOption');
+const filterSelectors = document.querySelectorAll('.filterOption');
 console.log(filterSelectors)
 
 filterSelectors.forEach(selector => {
-    selector.addEventListener("click", e => setState(e.target.dataset.filter))
+    selector.addEventListener("click", e => state.setState(e.target.dataset.filter))
 })
 
-function setState(state) {
-    switch (state) {
-        case 'all':
-            reloadTodos(filterTodos(todos, 'all'));
-            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
-            filterSelectors[0].classList.add('filterSelected');
-            break;
-        
-        case 'active':
-            reloadTodos(filterTodos(todos, 'active'));
-            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
-            filterSelectors[1].classList.add('filterSelected');
-            break;
-        
-        case 'completed':
-            reloadTodos(filterTodos(todos, 'completed'));
-            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
-            filterSelectors[2].classList.add('filterSelected');
-            break;
-    }
-}
 
 const clearCompleted = document.getElementById('clearCompleted');
 clearCompleted.addEventListener('click', e => {
@@ -170,6 +151,23 @@ clearCompleted.addEventListener('click', e => {
 } )
 
 
+class State {
+    constructor() {
+        this.state = 'all'
+        this.stateOptions = ["all", "active", "completed"]
+    }
+
+    setState(value) {
+        console.log(this)
+        reloadTodos(filterTodos(todos, value));
+        this.state = value;
+        this.stateOptions.forEach(option => document.querySelector(`[data-filter="${option}"]`).classList.remove('filterSelected'));
+        document.querySelector(`[data-filter="${value}"]`).classList.add('filterSelected')
+
+    }
+}
+
+const state = new State();
 
 
 
