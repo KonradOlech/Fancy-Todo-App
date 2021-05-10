@@ -105,6 +105,7 @@ header {
 }
 
 .newTodoInput {
+	cursor: pointer;
 	padding: 1.5rem;
 
 	font-family: 'Josefin Sans', sans-serif;
@@ -121,7 +122,9 @@ header {
 	}
 }
 
-.app__input .checkbox,
+.app__input .checkbox {
+	pointer-events: none;
+}
 .app__input a {
 	visibility: hidden;
 }
@@ -134,19 +137,61 @@ header {
 	align-items: center;
 	justify-content: space-between;
 
+	input:hover {
+		color: var(--text-main-hover);
+	}
+
 	&:hover .deleteBtn {
 		display: inline-block;
 	}
 }
 
 .deleteBtn {
+	cursor: pointer;
+	width: 2.5rem;
+	height: 2.5rem;
+	background: url(/images/icon-cross.svg) no-repeat center/ cover;
 	display: none;
 }
 
-.app__todos {
-	overflow: hidden;
-}
 .app__input,
-.app__todos {
+.todoListContainer {
+	overflow: hidden;
 	border-radius: 5px;
+}
+
+.app__controls {
+	padding: 2rem 3rem;
+	a,
+	span {
+		text-decoration: none;
+		color: var(--text-secondary);
+		font-size: 1.4rem;
+	}
+
+	a:hover {
+		color: var(--text-main-hover);
+	}
+
+	span {
+		cursor: default;
+	}
+}
+
+.todoListContainer {
+	.app__todos .todo-item {
+		border-bottom: 1px solid var(--text-secondary-hover);
+	}
+}
+
+.filteringOptions {
+	list-style: none;
+	display: flex;
+	gap: 2rem;
+	align-items: center;
+	align-content: center;
+
+	.filterSelected {
+		color: var(--bright-blue);
+	}
 }

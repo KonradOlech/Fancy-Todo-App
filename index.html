@@ -35,26 +35,41 @@
 				<div class="app__input todo-item">
 					<input class="checkbox" type="checkbox" value="completed" />
 					<input
+						id="newTodoInput"
 						class="newTodoInput"
 						placeholder="Create a new todo..."
 						type="text"
 					/>
-					<a class="deleteBtn" href="#"
-						><img src="/images/icon-cross.svg" alt=""
-					/></a>
+					<a class="deleteBtn" href="#"> </a>
 				</div>
-				<div class="app__todos">
+				<div class="todoListContainer">
+					<div id="todoList" class="app__todos"></div>
 					<div class="app__controls todo-item">
-						<a href="#">5 items left</a>
+						<span id="remainingCounter">0 items left</span>
 						<ul class="filteringOptions">
-							<li><a href="#">All</a></li>
-							<li><a href="#">Active</a></li>
-							<li><a href="#">Completed</a></li>
+							<li>
+								<a
+									id="filterOption"
+									href="#"
+									class="filterSelected"
+									data-filter="all"
+									>All</a
+								>
+							</li>
+							<li>
+								<a id="filterOption" href="#" data-filter="active">Active</a>
+							</li>
+							<li>
+								<a id="filterOption" href="#" data-filter="completed"
+									>Completed</a
+								>
+							</li>
 						</ul>
 
-						<a href="#">Clear Completed</a>
+						<a id="clearCompleted" href="#">Clear Completed</a>
 					</div>
 				</div>
+
 				<p class="instructions">Drag and drop to reorder list</p>
 			</div>
 
@@ -65,5 +80,6 @@
 				>. Coded by <a href="#">Your Name Here</a>.
 			</div>
 		</div>
+		<script src="app.js" type="module"></script>
 	</body>
 </html>
