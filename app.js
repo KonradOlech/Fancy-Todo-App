@@ -12,8 +12,8 @@ function createTodo(todosArr, input) {
     }
 
     todosArr.push(newTodo)
-    reloadTodos(todosArr)
-    showRemainingCounter(todos)
+    setState('all')
+    showRemainingCounter(todosArr)
 
 }
 
@@ -135,15 +135,33 @@ newTodoInput.addEventListener('keydown', e => {
 })
 
 const filterSelectors = document.querySelectorAll('#filterOption');
+console.log(filterSelectors)
 
 filterSelectors.forEach(selector => {
-    selector.addEventListener("click", e => {
-        reloadTodos(filterTodos(todos, e.target.dataset.filter))
-        filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
-        e.target.classList.add('filterSelected');
-
-    })
+    selector.addEventListener("click", e => setState(e.target.dataset.filter))
 })
+
+function setState(state) {
+    switch (state) {
+        case 'all':
+            reloadTodos(filterTodos(todos, 'all'));
+            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
+            filterSelectors[0].classList.add('filterSelected');
+            break;
+        
+        case 'active':
+            reloadTodos(filterTodos(todos, 'active'));
+            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
+            filterSelectors[1].classList.add('filterSelected');
+            break;
+        
+        case 'completed':
+            reloadTodos(filterTodos(todos, 'completed'));
+            filterSelectors.forEach(selector => selector.classList.remove('filterSelected'));
+            filterSelectors[2].classList.add('filterSelected');
+            break;
+    }
+}
 
 const clearCompleted = document.getElementById('clearCompleted');
 clearCompleted.addEventListener('click', e => {
