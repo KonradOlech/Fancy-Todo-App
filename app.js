@@ -3,6 +3,16 @@ const newTodoInput = document.getElementById('newTodoInput');
 const todoList = document.getElementById('todoList');
 const filterSelectors = document.querySelectorAll('.filterOption');
 const clearCompleted = document.getElementById('clearCompleted');
+const colorModeBtn = document.getElementById('colorModeBtn');
+
+colorModeBtn.addEventListener('click', (e) => {
+	changeColorMode();
+	if (document.body.classList.contains('light-mode')) {
+		e.target.src = '/images/icon-sun.svg';
+	} else {
+		e.target.src = '/images/icon-moon.svg';
+	}
+});
 
 class State {
 	constructor() {
@@ -15,18 +25,21 @@ class State {
 		this.currentState = value;
 		this.stateOptions.forEach((option) =>
 			document
-				.querySelector(`[data-filter="${option}"]`)
-				.classList.remove('filterSelected'),
+				.querySelectorAll(`[data-filter="${option}"]`)
+				.forEach((selector) => selector.classList.remove('filterSelected')),
 		);
 		document
-			.querySelector(`[data-filter="${value}"]`)
-			.classList.add('filterSelected');
+			.querySelectorAll(`[data-filter="${value}"]`)
+			.forEach((selector) => selector.classList.add('filterSelected'));
 	}
 }
 
 const state = new State();
 
-window.addEventListener('DOMContentLoaded', state.setState('all'));
+window.addEventListener('DOMContentLoaded', () => {
+	state.setState('all');
+	showRemainingCounter(loadTodos());
+});
 
 newTodoInput.addEventListener('keydown', (e) => {
 	if (e.key === 'Enter') {
@@ -47,6 +60,11 @@ clearCompleted.addEventListener('click', (e) => {
 	state.setState(state.currentState);
 });
 
+function changeColorMode() {
+	document.body.classList.toggle('dark-mode');
+	document.body.classList.toggle('light-mode');
+}
+
 function createTodo(input) {
 	function generateId(arr) {
 		const allId = arr.map((i) => i.id);
@@ -64,7 +82,7 @@ function createTodo(input) {
 		content: input.value,
 	};
 
-	saveTodo(newTodo);
+	saveTodos(loadTodos().concat(newTodo));
 	state.setState(state.currentState);
 	showRemainingCounter(loadTodos());
 }
@@ -77,7 +95,7 @@ function reloadTodos(todosArr) {
 function deleteTodo(item) {
 	const todos = loadTodos();
 	const newTodos = todos.filter((x) => x.id !== item.id);
-	localStorage.setItem('TodosData', JSON.stringify(newTodos));
+	saveTodos(newTodos);
 
 	showRemainingCounter(newTodos);
 }
@@ -85,7 +103,7 @@ function deleteTodo(item) {
 function changeTodo(item) {
 	const todos = loadTodos();
 	const newTodos = todos.map((todo) => (todo.id === item.id ? item : todo));
-	localStorage.setItem('TodosData', JSON.stringify(newTodos));
+	saveTodos(newTodos);
 
 	state.setState(state.currentState);
 	showRemainingCounter(newTodos);
@@ -168,16 +186,15 @@ function buildTodoComponent(props) {
 	todoList.appendChild(todo);
 }
 
-function saveTodo(newTodo) {
-	let todos = loadTodos();
-	todos.push(newTodo);
-	localStorage.setItem('TodosData', JSON.stringify(todos));
+function saveTodos(newTodos) {
+	console.log(newTodos);
+	localStorage.setItem('TodosData', JSON.stringify(newTodos));
 }
 
 function loadTodos() {
 	let todos;
 	if (localStorage.getItem('TodosData') === null) {
-		todos = [];
+		todos = new Array();
 	} else {
 		todos = JSON.parse(localStorage.getItem('TodosData'));
 	}

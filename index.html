@@ -25,15 +25,14 @@
 			}
 		</style>
 	</head>
-	<body class="dark-theme">
+	<body class="light-mode">
 		<div class="container">
 			<div class="app">
 				<header>
 					<h1>Todo</h1>
-					<i class="app__colorIcon">
-						<img class="icon-sun" src="/images/icon-sun.svg" alt="" />
-						<img class="icon-moon" src="/images/icon-moon.svg" alt="" />
-					</i>
+					<a id="colorModeBtn" class="app__colorIcon">
+						<img src="/images/icon-sun.svg" alt="" />
+					</a>
 				</header>
 				<div class="app__input todo-item">
 					<input class="checkbox" type="checkbox" value="completed" />
@@ -71,6 +70,22 @@
 						<a id="clearCompleted" href="#">Clear Completed</a>
 					</div>
 				</div>
+
+				<ul class="app__controls filteringOptions todo-item">
+					<li>
+						<a href="#" class="filterSelected filterOption" data-filter="all"
+							>All</a
+						>
+					</li>
+					<li>
+						<a href="#" class="filterOption" data-filter="active">Active</a>
+					</li>
+					<li>
+						<a href="#" class="filterOption" data-filter="completed"
+							>Completed</a
+						>
+					</li>
+				</ul>
 
 				<p class="instructions">Drag and drop to reorder list</p>
 			</div>

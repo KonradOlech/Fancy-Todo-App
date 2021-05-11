@@ -16,9 +16,14 @@
   --dark-grayish-blue: hsl(234, 11%, 52%);
   --very-dark-grayish-blue: hsl(233, 14%, 35%);
   --very-dark-grayish-blue-hover: hsl(237, 14%, 26%);
+  --color1: hsl(0, 0%, 98%);
+  --color2: hsl(236, 33%, 92%);
+  --color3: hsl(233, 11%, 84%);
+  --color4: hsl(236, 9%, 61%);
+  --color5: hsl(235, 19%, 35%);
 }
 
-.dark-theme {
+.dark-mode {
   --body-bg: var(--very-dark-desaturated-blue);
   --container-bg: url(/images/bg-desktop-dark.jpg) no-repeat,
 		var(--very-dark-blue);
@@ -27,6 +32,16 @@
   --text-main-hover: var(--light-grayish-blue-hover);
   --text-secondary: var(--very-dark-grayish-blue);
   --text-secondary-hover: var(--very-dark-grayish-blue-hover);
+}
+
+.light-mode {
+  --body-bg: var(--very-dark-desaturated-blue);
+  --container-bg: url(/images/bg-desktop-light.jpg) no-repeat, var(--color2);
+  --item-bg: var(--color1);
+  --text-main: var(--color5);
+  --text-main-hover: var(--color5);
+  --text-secondary: var(--color4);
+  --text-secondary-hover: var(--color3);
 }
 
 html {
@@ -89,6 +104,10 @@ header {
   gap: 2rem;
 }
 
+.app__input {
+  margin-top: 3rem;
+}
+
 .checkbox {
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -97,7 +116,7 @@ header {
   height: 2.5rem;
   width: 2.5rem;
   border-radius: 50%;
-  border: 1px solid var(--text-secondary);
+  border: 2px solid var(--text-secondary-hover);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -186,8 +205,8 @@ header {
 
 .deleteBtn {
   cursor: pointer;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   background: url(/images/icon-cross.svg) no-repeat center/cover;
   display: none;
 }
@@ -232,9 +251,16 @@ header {
           align-items: center;
   -ms-flex-line-pack: center;
       align-content: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .filteringOptions .filterSelected {
   color: var(--bright-blue);
+}
+
+.app__colorIcon {
+  cursor: pointer;
 }
 /*# sourceMappingURL=style.css.map */
