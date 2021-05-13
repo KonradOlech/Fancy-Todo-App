@@ -135,25 +135,30 @@ function filterTodos(filter) {
 	return filteredTodos;
 }
 
+function getTodo(input) {
+	const id = Number(input.dataset.todoId);
+	const isDone = input.querySelector('.checkbox').checked;
+	const content = input.querySelector('.newTodoInput').value;
+
+	if (id === undefined || isDone === undefined || content === undefined) {
+		throw new Error('There is no todo in given element');
+	}
+
+	return { id, isDone, content };
+}
+
 function buildTodoComponent(props) {
 	const { id, isDone, content } = props;
 	const todo = document.createElement('div');
-	todo.classList.add('todo-item');
+	todo.classList.add('todo-item', 'js-draggable');
 	todo.dataset.todoId = id;
+	todo.draggable = 'true';
 
 	const checkbox = document.createElement('input');
 	checkbox.type = 'checkbox';
 	checkbox.value = 'done';
 	checkbox.defaultChecked = isDone;
 	checkbox.classList.add('checkbox');
-
-	function getTodo(input) {
-		const id = Number(input.dataset.todoId);
-		const isDone = input.querySelector('.checkbox').checked;
-		const content = input.querySelector('.newTodoInput').value;
-
-		return { id, isDone, content };
-	}
 
 	checkbox.addEventListener('click', (e) =>
 		changeTodo(getTodo(e.target.parentNode)),
@@ -183,11 +188,20 @@ function buildTodoComponent(props) {
 	todo.appendChild(text);
 	todo.appendChild(deleteBtn);
 
+	todo.addEventListener('dragstart', (e) => {
+		e.target.classList.add('dragging');
+		e.dataTransfer.setDragImage(new Image(0, 0), 0, 0);
+	});
+
+	todo.addEventListener('drop', (e) => {});
+	todo.addEventListener('dragend', (e) => {
+		e.target.classList.remove('dragging');
+	});
+
 	todoList.appendChild(todo);
 }
 
 function saveTodos(newTodos) {
-	console.log(newTodos);
 	localStorage.setItem('TodosData', JSON.stringify(newTodos));
 }
 
@@ -200,4 +214,53 @@ function loadTodos() {
 	}
 
 	return todos;
+}
+
+const draggables = document.querySelectorAll('.js-draggable');
+const dragContainer = document.querySelector('.app__todos');
+
+dragContainer.addEventListener('dragover', (e) => {
+	e.preventDefault();
+	const afterElement = getElementAfterDrag(dragContainer, e.clientY);
+	const draggable = document.querySelector('.dragging');
+
+	if (afterElement == null) {
+		dragContainer.appendChild(draggable);
+	} else {
+		dragContainer.insertBefore(draggable, afterElement);
+	}
+
+	let reorderedArr = loadTodos();
+	let newArr = reorderedArr.map((todo) => todo.id);
+	let afterElementIdx;
+	const draggableIdx = newArr.indexOf(getTodo(draggable).id);
+
+	try {
+		afterElementIdx = newArr.indexOf(getTodo(afterElement).id);
+	} catch {
+		afterElementIdx = reorderedArr.length;
+	}
+
+	const movedItem = reorderedArr.splice(draggableIdx, 1);
+	reorderedArr.splice(afterElementIdx, 0, movedItem[0]);
+	saveTodos(reorderedArr);
+});
+
+function getElementAfterDrag(container, y) {
+	const draggableElements = [
+		...container.querySelectorAll('.js-draggable:not(.dragging)'),
+	];
+
+	return draggableElements.reduce(
+		(closest, child) => {
+			const box = child.getBoundingClientRect();
+			const offset = y - box.top - box.height / 2;
+			if (offset < 0 && offset > closest.offset) {
+				return { offset: offset, element: child };
+			} else {
+				return closest;
+			}
+		},
+		{ offset: Number.NEGATIVE_INFINITY },
+	).element;
 }

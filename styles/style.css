@@ -263,4 +263,12 @@ header {
 .app__colorIcon {
   cursor: pointer;
 }
+
+.dragging {
+  opacity: 0.5;
+}
+
+.todoListContainer {
+  background: var(--item-bg);
+}
 /*# sourceMappingURL=style.css.map */
